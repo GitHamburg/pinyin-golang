@@ -145,6 +145,7 @@ func (r *ConvertResult) None() string {
 // mei hao
 func (r *ConvertResult) None2() string {
 	s := string(*r)
+
 	re := regexp.MustCompile(`[1-4]{1}_`)
 	s = re.ReplaceAllString(s, "_")
 	return s
@@ -163,7 +164,15 @@ func NewDict() *Dict {
 // Convert 中文转换为拼音, 不保留标点符号
 func (p *Dict) Convert(s string, sep string) (result *ConvertResult) {
 	s = p.romanize(s, false)
+	split := ToSlice(s)
 
+	result = NewConvertResult(strings.Join(split, sep))
+	return
+}
+
+// Convert 中文转换为拼音, 不保留标点符号
+func (p *Dict) ConvertNone(s string, sep string) (result *ConvertResult) {
+	s = p.noneRomanize(s, false)
 	split := ToSlice(s)
 
 	result = NewConvertResult(strings.Join(split, sep))
@@ -245,10 +254,37 @@ func (p *Dict) romanize(s string, convertName bool) string {
 	return s
 }
 
+func (p *Dict) noneRomanize(s string, convertName bool) string {
+	s = p.prepare(s)
+
+	if convertName {
+		for i := 0; i < len(surnames); i += 2 {
+			if strings.Index(s, surnames[i]) == 0 {
+				s = strings.Replace(s, surnames[i], surnames[i+1], 1)
+			}
+		}
+	}
+
+	//log.Println(s)
+	for i := 0; i < len(dict); i += 2 {
+		//log.Println(s)
+		sdict := string(dict[i+1])
+		re := regexp.MustCompile(`[1-4]{1}`)
+		sdict = re.ReplaceAllString(sdict, "")
+		s = strings.Replace(s, dict[i], sdict, -1)
+	}
+
+	s = strings.Replace(s, "\t", " ", -1)
+	s = strings.Replace(s, "  ", " ", -1)
+	s = strings.TrimSpace(s)
+
+	return s
+}
+
 // ToSlice 转换为字符串数组
 func ToSlice(s string) []string {
 	var split []string
-	re := regexp.MustCompile(`[^a-zA-Z1-1000000]+`)
+	re := regexp.MustCompile(`[^a-zA-Z0-9]+`)
 	for _, str := range re.Split(s, -1) {
 		if str != "" {
 			split = append(split, str)
