@@ -248,7 +248,7 @@ func (p *Dict) romanize(s string, convertName bool) string {
 // ToSlice 转换为字符串数组
 func ToSlice(s string) []string {
 	var split []string
-	re := regexp.MustCompile(`[^a-zA-Z1-4]+`)
+	re := regexp.MustCompile(`[^a-zA-Z1-1000000]+`)
 	for _, str := range re.Split(s, -1) {
 		if str != "" {
 			split = append(split, str)
