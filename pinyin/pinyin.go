@@ -141,6 +141,15 @@ func (r *ConvertResult) None() string {
 	return s
 }
 
+// None 不带声调输出
+// mei hao
+func (r *ConvertResult) None2() string {
+	s := string(*r)
+	re := regexp.MustCompile(`[1-4]{1}_`)
+	s = re.ReplaceAllString(s, "_")
+	return s
+}
+
 // -----------------------------------------------------------------------------
 
 // Dict 拼音词典
